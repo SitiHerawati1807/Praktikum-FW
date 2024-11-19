@@ -18,6 +18,13 @@
                     {{ session('error') }}
                 </div>
             @endif
+            <form method="GET" action="{{ route('product-index') }}" class="mb-4 flex items-center">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..."
+                    class="w-1/4 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit"
+                    class="ml-2 rounded-lg bg-green-500 px-4 py-2 text-black shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Cari</button>
+            </form>
+
 
             <a href="{{ route('product-create') }}">
                 <button
@@ -26,6 +33,23 @@
                 </button>
 
             </a>
+
+            <a href="{{ route('products.export-excel') }}">
+                <button
+                    class="px-6 py-4 text-black bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Export ke Excel
+                </button>
+
+            </a>
+
+            <a href="{{ route('products.export-pdf') }}">
+                <button
+                    class="px-6 py-4 text-black bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Export ke PDF
+                </button>
+
+            </a>
+
             <table class="min-w-full border border-collapse border-gray-200">
                 <thead>
                     <tr class="bg-gray-100">
@@ -43,6 +67,12 @@
 
                     @foreach ($products as $product)
                         <tr class="bg-white">
+                            <td class = "product border-gray-200 px-4 py-2">{{ $product->id }}</td>
+                            <td class = "product border-gray-200 px-4 py-2 hover:text-blue-500 hover:underline">
+                                <a href="{{ route('product-detail', $product->id) }}">
+                                    {{ $product->product_name }}
+                                </a>
+                            </td>
                             <td class="px-4 py-2 border border-gray-200">{{ $product->id }}</td>
                             <td class="px-4 py-2 border border-gray-200">{{ $product->product_name }}</td>
                             <td class="px-4 py-2 border border-gray-200">{{ $product->unit }}</td>
@@ -63,39 +93,41 @@
                     <!-- Tambahkan baris lainnya sesuai kebutuhan -->
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{ $products->appends(['search' => request('search')])->links() }}
+            </div>
         </div>
-    </div>
 
 
-    <script>
-        function confirmDelete(deleteUrl) {
-            console.log(deleteUrl);
-            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                // Jika user mengonfirmasi, kita dapat membuat form dan mengirimkan permintaan delete
-                let form = document.createElement('form');
-                form.method = 'POST';
-                form.action = deleteUrl;
+        <script>
+            function confirmDelete(deleteUrl) {
+                console.log(deleteUrl);
+                if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                    // Jika user mengonfirmasi, kita dapat membuat form dan mengirimkan permintaan delete
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
 
-                // Tambahkan CSRF token
-                let csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
+                    // Tambahkan CSRF token
+                    let csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfInput);
 
-                // Tambahkan method spoofing untuk DELETE (karena HTML form hanya mendukung GET dan POST)
-                let methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
+                    // Tambahkan method spoofing untuk DELETE (karena HTML form hanya mendukung GET dan POST)
+                    let methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
 
-                // Tambahkan form ke body dan submit
-                document.body.appendChild(form);
-                form.submit();
+                    // Tambahkan form ke body dan submit
+                    document.body.appendChild(form);
+                    form.submit();
+                }
             }
-        }
-    </script>
+        </script>
 
 
 </x-app-layout>
