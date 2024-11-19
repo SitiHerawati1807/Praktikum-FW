@@ -45,7 +45,7 @@
             <a href="{{ route('products.export-pdf') }}">
                 <button
                     class="px-6 py-4 text-black bg-green-500 border border-green-500 rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Export ke PDF
+                    Export ke .pdf
                 </button>
 
             </a>
