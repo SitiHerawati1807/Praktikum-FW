@@ -15,4 +15,9 @@ class Supplier extends Model
         'phone',
         'comment',
     ];
+
+    public function products()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ProductsExport;
 use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -15,7 +16,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query();
+        $query = Product::with('supplier');
+
 
         // Cek apakah ada parameter 'search' di request
         if ($request->has('search') && $request->search != '') {
@@ -27,6 +29,7 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(2);
+        //return $products;
         return view("master-data.product-master.index-product", compact('products'));
     }
 
@@ -36,7 +39,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view("master-data.product-master.create-product");
+        $suppliers = Supplier::all();
+        return view("master-data.product-master.create-product", compact('suppliers'));
     }
 
     /**
@@ -51,6 +55,7 @@ class ProductController extends Controller
             'information' => 'nullable|string',
             'qty' => 'required|integer',
             'producer' => 'required|string|max:255',
+            'supplier_id' => 'required|exist:suppliers,id',
         ]);
 
         Product::create($validasi_data);
@@ -71,7 +76,8 @@ class ProductController extends Controller
     public function edit(string $id)
     {
         $product = product::findorFail($id);
-        return view("master-data.product-master.edit-product", compact('product'));
+        $suppliers = Supplier::all();
+        return view("master-data.product-master.edit-product", compact('product', 'suppliers'));
     }
 
     /**
@@ -87,6 +93,7 @@ class ProductController extends Controller
             'information' => 'nullable|string',
             'qty' => 'required|integer|min:1',
             'producer' => 'required|string|max:255',
+            'supplier_id' => 'required|exists:suppliers,id'
         ]);
 
         $products = product::findorFail($id);
@@ -97,6 +104,8 @@ class ProductController extends Controller
             'information' => $request->information,
             'qty' => $request->qty,
             'producer' => $request->producer,
+            'supplier_id' => $request->supplier_id,
+
 
         ]);
 
@@ -123,8 +132,8 @@ class ProductController extends Controller
 
     public function exportPDF()
     {
-        $products = Product::all(); // Ambil semua data produk
+        $products = Product::all();
         $pdf = Pdf::loadView('exports.products-pdf', compact('products'));
-        return $pdf->download('products.pdf'); // Unduh file PDF
+        return $pdf->download('products.pdf');
     }
 }
